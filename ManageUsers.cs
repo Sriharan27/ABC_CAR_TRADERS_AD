@@ -44,7 +44,7 @@ namespace ABC_Car_Traders
                     UsersGridView.DataSource = carTable;
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -60,7 +60,7 @@ namespace ABC_Car_Traders
             string Address = AddressTxtBox.Text;
             string Role = RoleComboBox.Text;
             string Username = UsernameTxtBox.Text;
-            string Password = PasswordTxtBox.Text;
+            string Password = PasswordHasher.HashPassword(PasswordTxtBox.Text);
 
             if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(PhNum) || string.IsNullOrWhiteSpace(Address) || string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
@@ -138,7 +138,7 @@ namespace ABC_Car_Traders
                         using (SqlCommand command = new SqlCommand(query, connection))
                         {
                             command.Parameters.AddWithValue("@Username", UsernameTxtBox.Text);
-                            command.Parameters.AddWithValue("@Password", PasswordTxtBox.Text);
+                            command.Parameters.AddWithValue("@Password", PasswordHasher.HashPassword(PasswordTxtBox.Text));
                             command.Parameters.AddWithValue("@Role", RoleComboBox.Text);
                             command.Parameters.AddWithValue("@FirstName", FirstNameTxtBox.Text);
                             command.Parameters.AddWithValue("@LastName", LastNameTxtBox.Text);
