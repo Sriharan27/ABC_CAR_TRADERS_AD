@@ -25,6 +25,8 @@ namespace ABC_Car_Traders
 
             UpdateConnectionString(dataSource, databaseName);
 
+            MessageBox.Show("Database Configured successfully");
+
             this.Hide();
             Login login = new Login();
             login.Show();
