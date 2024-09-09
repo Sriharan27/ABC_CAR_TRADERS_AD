@@ -40,12 +40,16 @@ namespace ABC_Car_Traders
             OrderLineItemsLbl.Visible = false;
             PartsLineItemGridView.Visible = false;
             PartsOrderLineItemLbl.Visible = false;
-            LoadOrderDetails();
-            PartsLoadOrderDetails();
+            LoadDataAsync();
         }
 
         //Data Loading
-        private void LoadOrderDetails()
+        private async Task LoadDataAsync()
+        {
+            await LoadOrderDetails();   
+            await PartsLoadOrderDetails();
+        }
+        private async Task LoadOrderDetails()
         {
             try
             {
@@ -56,7 +60,10 @@ namespace ABC_Car_Traders
                                     "where ORD.ItemType = 'Cars' and ORD.OrderStatus = 'Processing'";
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable OrderDetailsTable = new DataTable();
-                    adapter.Fill(OrderDetailsTable);
+
+                    await connection.OpenAsync();
+                    await Task.Run(() => adapter.Fill(OrderDetailsTable));
+
                     OrderDetailsGridView.Columns["OrderDate"].DataPropertyName = "OrderDate";
                     OrderDetailsGridView.Columns["OrderID"].DataPropertyName = "OrderID";
                     OrderDetailsGridView.Columns["TotalOrderAmount"].DataPropertyName = "TotalOrderAmount";
@@ -114,7 +121,7 @@ namespace ABC_Car_Traders
                 MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private void PartsLoadOrderDetails()
+        private async Task PartsLoadOrderDetails()
         {
             try
             {
@@ -125,7 +132,10 @@ namespace ABC_Car_Traders
                                     "where ORD.ItemType = 'CarParts' and ORD.OrderStatus = 'Processing'";
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable PartsOrderDetailsTable = new DataTable();
-                    adapter.Fill(PartsOrderDetailsTable);
+
+                    await connection.OpenAsync();
+                    await Task.Run(() => adapter.Fill(PartsOrderDetailsTable));
+
                     PartsOrderDetailsGridView.Columns["PartsOrderDate"].DataPropertyName = "OrderDate";
                     PartsOrderDetailsGridView.Columns["PartsOrderID"].DataPropertyName = "OrderID";
                     PartsOrderDetailsGridView.Columns["PartsTotalOrderAmount"].DataPropertyName = "TotalOrderAmount";

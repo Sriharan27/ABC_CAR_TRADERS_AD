@@ -29,15 +29,18 @@ namespace ABC_Car_Traders
             InitializeComponent();
             LoadDashboard();
             connectionString = ConfigurationManager.ConnectionStrings["MyDBConnectionString"].ConnectionString;
-            LoadCarTypes();
-            LoadPartsData();
+            LoadDataAsync();
             CarTypeComboBox.SelectedIndex = -1;
             UpdateBtn.Visible = false;
             DeleteBtn.Visible = false;
         }
-
         //Data Loading
-        private void LoadPartsData()
+        private async Task LoadDataAsync()
+        {
+            await LoadCarTypes();   
+            await LoadPartsData(); 
+        }
+        private async Task LoadPartsData()
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -47,7 +50,9 @@ namespace ABC_Car_Traders
                                    "INNER JOIN Cars c ON cp.CarID = c.CarID";
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable carTable = new DataTable();
-                    adapter.Fill(carTable);
+
+                    await connection.OpenAsync(); 
+                    await Task.Run(() => adapter.Fill(carTable)); 
 
                     PartsGridView.DataSource = carTable;
 
@@ -63,25 +68,23 @@ namespace ABC_Car_Traders
                 }
             }
         }
-        private void LoadCarTypes()
+        private async Task LoadCarTypes()
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
-                    connection.Open();
+                    await connection.OpenAsync();  
                     string query = "SELECT CarID, Make, Model FROM Cars";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        SqlDataReader reader = command.ExecuteReader();
+                        SqlDataReader reader = await command.ExecuteReaderAsync();  
                         DataTable carTable = new DataTable();
-                        carTable.Load(reader);
-
-                        CarTypeComboBox.DisplayMember = "CarDetails";
-                        CarTypeComboBox.ValueMember = "CarID";
+                        carTable.Load(reader); 
 
                         carTable.Columns.Add("CarDetails", typeof(string), "Make + ' ' + Model");
-
+                        CarTypeComboBox.DisplayMember = "CarDetails";
+                        CarTypeComboBox.ValueMember = "CarID";
                         CarTypeComboBox.DataSource = carTable;
                     }
                 }
@@ -91,7 +94,6 @@ namespace ABC_Car_Traders
                 }
             }
         }
-
         //UI Event Handlers
         private void SaveBtn_Click(object sender, EventArgs e)
         {

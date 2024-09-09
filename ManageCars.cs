@@ -31,14 +31,18 @@ namespace ABC_Car_Traders
             connectionString = ConfigurationManager.ConnectionStrings["MyDBConnectionString"].ConnectionString;
             CarDetailsGridView.AutoGenerateColumns = false;
             CarPictureBox.SizeMode = PictureBoxSizeMode.Normal;
-            LoadCarsData();
+            LoadDataAsync();
             UpdateBtn.Visible = false;
             DeleteBtn.Visible = false;
             UpdateCarDetailsBtn.Visible = false;
         }
 
         //Data Loading
-        private void LoadCarsData()
+        private async Task LoadDataAsync()
+        {
+            await LoadCarsData();
+        }
+        private async Task LoadCarsData()
         {
             try
             {
@@ -47,8 +51,11 @@ namespace ABC_Car_Traders
                     string query = "SELECT * FROM Cars";
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable carTable = new DataTable();
-                    adapter.Fill(carTable);
-                    CarsGridView.DataSource = carTable;
+
+                    await connection.OpenAsync();  
+                    await Task.Run(() => adapter.Fill(carTable));  
+
+                    CarsGridView.DataSource = carTable; 
                 }
             }
             catch (Exception ex)
@@ -56,6 +63,7 @@ namespace ABC_Car_Traders
                 MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void LoadDetailsItems(int CarId)
         {
             try
